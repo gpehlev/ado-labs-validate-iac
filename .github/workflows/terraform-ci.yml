@@ -1,0 +1,52 @@
+name: "Terraform-CI"
+
+on:
+  push:
+    branches:
+      - '!main'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  TF_LOG: INFO
+  TF_IN_AUTOMATION: TRUE
+
+jobs:
+  terraform:
+    name: "Terraform-CI"
+    runs-on: ubuntu-latest
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest or windows-latest
+    # Set the working directory to main for the config files
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./main
+
+    steps:
+      # Checkout the repository on the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Install the preferred version of Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+          # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }} # Disabled: The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file (optional)
+
+      # Run terraform fmt
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        id: init
+        run: terraform init # TODO: add backend command options
+
+      # Run terraform validate
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
