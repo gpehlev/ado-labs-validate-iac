@@ -2,8 +2,8 @@ name: "Terraform-CI"
 
 on:
   push:
-    branches:
-      - '!main'
+    branches-ignore:
+      - main
 
 env:
   TF_LOG: INFO
