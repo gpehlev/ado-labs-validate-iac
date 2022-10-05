@@ -70,6 +70,7 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         # if: github.event_name == 'pull_request' # Disabled for the time being
         run: terraform plan -no-color # -out=$GITHUB_WORKSPACE/terraform.tfplan # Commented out for testing
+        continue-on-error: true
 
 # Verify plan with Checkov
 # Publish test results for plan
