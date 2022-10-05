@@ -69,7 +69,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         # if: github.event_name == 'pull_request' # Disabled for the time being
-        run: terraform plan -no-color -out=$GITHUB_WORKSPACE/terraform.tfplan
+        run: terraform plan -no-color -out=$env:GITHUB_WORKSPACE/terraform.tfplan
         continue-on-error: true
 
 # Verify plan with Checkov
@@ -115,4 +115,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: terraform-plan
-          path: $GITHUB_WORKSPACE/terraform.tfplan
+          path: $env:GITHUB_WORKSPACE/terraform.tfplan
