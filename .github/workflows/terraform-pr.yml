@@ -1,0 +1,119 @@
+# TODO: break workflow in 2 stages (jobs) - validate and plan
+
+name: 'Terraform-PR'
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  TF_LOG: INFO
+  TF_IN_AUTOMATION: TRUE
+
+jobs:
+  terraform:
+    name: 'Terraform-PR'
+    runs-on: ubuntu-latest
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest or windows-latest. Set the working directory to main for the config files
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./main
+
+    steps:
+      # Checkout the repository on the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Install the preferred version of Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+          # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }} # Disabled: The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file (optional)
+
+      # Run terraform fmt
+      - name: Terraform Format
+        id: fmt
+        # if: github.ref != 'refs/heads/main' # Disabled for the time being
+        run: terraform fmt -check
+
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        id: init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+          STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
+          CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+        run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
+
+      # Run terraform validate
+      - name: Terraform Validate
+        id: validate
+        # if: github.ref != 'refs/heads/main' && (success() || failure()) # Disabled for the time being
+        run: terraform validate -no-color
+
+      # Verify main + module files with Checkov
+      # Publish test results
+
+      - name: Terraform Plan
+        id: plan
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        # if: github.event_name == 'pull_request' # Disabled for the time being
+        run: terraform plan -no-color -out=$GITHUB_WORKSPACE/terraform.tfplan
+        continue-on-error: true
+
+      # Verify plan with Checkov
+      # Publish test results for plan
+
+      - uses: actions/github-script@v6
+        # if: github.event_name == 'pull_request' # Disabled for the time being
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        # with:
+        #   github-token: ${{ secrets.GITHUB_TOKEN }} # Should not be needed
+          script: |
+            const output = `#### Terraform format and style: \`${{ steps.fmt.outcome }}\`
+            #### Terraform initialization: \`${{ steps.init.outcome }}\`
+            #### Terraform validation: \`${{ steps.validate.outcome }}\`
+            #### Terraform plan: \`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      # Upload plan file as build artifact
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plan
+          path: ${{ github.workspace }}/terraform.tfplan
