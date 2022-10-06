@@ -1,3 +1,5 @@
+# TODO: break workflow in 2 stages (jobs) - validate and plan
+
 name: 'Terraform-PR'
 
 on:
@@ -14,8 +16,7 @@ jobs:
     name: 'Terraform-PR'
     runs-on: ubuntu-latest
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest or windows-latest
-    # Set the working directory to main for the config files
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest or windows-latest. Set the working directory to main for the config files
     defaults:
       run:
         shell: bash
@@ -58,8 +59,8 @@ jobs:
         # if: github.ref != 'refs/heads/main' && (success() || failure()) # Disabled for the time being
         run: terraform validate -no-color
 
-# Verify main + module files with Checkov
-# Publish test results
+      # Verify main + module files with Checkov
+      # Publish test results
 
       - name: Terraform Plan
         id: plan
@@ -72,8 +73,8 @@ jobs:
         run: terraform plan -no-color -out=$GITHUB_WORKSPACE/terraform.tfplan
         continue-on-error: true
 
-# Verify plan with Checkov
-# Publish test results for plan
+      # Verify plan with Checkov
+      # Publish test results for plan
 
       - uses: actions/github-script@v6
         # if: github.event_name == 'pull_request' # Disabled for the time being
@@ -110,7 +111,7 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-# Save plan file for apply
+      # Upload plan file as build artifact
 
       - uses: actions/upload-artifact@v3
         with:
