@@ -88,6 +88,9 @@ jobs:
           # default fail
           if_no_artifact_found: fail
 
+      - name: List GITHUB_WORKSPACE
+        run: ls -al ${{ github.workspace }}
+
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         id: init
