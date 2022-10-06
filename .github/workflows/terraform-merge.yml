@@ -1,6 +1,7 @@
 name: 'Terraform-Merge'
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -81,7 +82,7 @@ jobs:
           search_artifacts: false
           # Optional, choose to skip unpacking the downloaded artifact(s)
           # default false
-          skip_unpack: false
+          skip_unpack: true
           # Optional, choose how to exit the action if no artifact is found
           # can be one of:
           #  "fail", "warn", "ignore"
