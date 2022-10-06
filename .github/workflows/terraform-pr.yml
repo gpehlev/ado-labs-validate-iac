@@ -115,4 +115,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: terraform-plan
-          path: $GITHUB_WORKSPACE/terraform.tfplan
+          path: ${{ github.workspace }}/terraform.tfplan
