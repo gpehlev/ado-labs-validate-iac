@@ -70,7 +70,7 @@ jobs:
           # https://github.com/actions/download-artifact#download-all-artifacts
           name: terraform-plan
           # Optional, a directory where to extract artifact(s), defaults to the current directory
-          path: ${{ github.workspace }}/artifact
+          path: ${{ github.workspace }}
           # Optional, defaults to current repo
           # repo: ${{ github.repository }}
           # Optional, check the workflow run to whether it has an artifact
@@ -90,7 +90,7 @@ jobs:
           if_no_artifact_found: fail
 
       - name: List GITHUB_WORKSPACE
-        run: ls -al ${{ github.workspace }}/artifact
+        run: tar -xvzf ${{ github.workspace }}/terraform-plan.zip
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
@@ -111,11 +111,11 @@ jobs:
       #   # if: github.ref != 'refs/heads/main' && (success() || failure()) # Disabled for the time being
       #   run: terraform validate -no-color
 
-      # - name: Terraform Apply
-      #   # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   env:
-      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      #   run: terraform apply ${{ github.workspace }}/terraform.tfplan
+      - name: Terraform Apply
+        # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        run: terraform apply ${{ github.workspace }}/terraform.tfplan
