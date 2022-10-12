@@ -90,7 +90,8 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Unpack workflow artifact
-        run: tar -xvzf ${{ github.workspace }}/terraform-plan.zip
+        id: unpack-artifact
+        run: unzip ${{ github.workspace }}/terraform-plan.zip
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
