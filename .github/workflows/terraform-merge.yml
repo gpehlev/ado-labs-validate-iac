@@ -34,9 +34,9 @@ jobs:
           # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }} # Disabled: The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file (optional)
 
       # Download plan file as build artifact
-      - name: Download artifact
+      - name: Download workflow artifact
+        uses: dawidd6/action-download-artifact@v2.23.0
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v2
         with:
           # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
           # Required, if the artifact is from a different repo
@@ -82,7 +82,7 @@ jobs:
           search_artifacts: false
           # Optional, choose to skip unpacking the downloaded artifact(s)
           # default false
-          skip_unpack: true
+          skip_unpack: false
           # Optional, choose how to exit the action if no artifact is found
           # can be one of:
           #  "fail", "warn", "ignore"
