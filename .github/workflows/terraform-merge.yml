@@ -70,7 +70,7 @@ jobs:
           # https://github.com/actions/download-artifact#download-all-artifacts
           name: terraform-plan
           # Optional, a directory where to extract artifact(s), defaults to the current directory
-          path: ${{ github.workspace }}
+          path: ${{ github.workspace }}/artifact
           # Optional, defaults to current repo
           # repo: ${{ github.repository }}
           # Optional, check the workflow run to whether it has an artifact
