@@ -90,7 +90,19 @@ jobs:
           if_no_artifact_found: fail
 
       - name: Unpack workflow artifact
-        run: tar -xvzf ${{ github.workspace }}/terraform-plan.zip
+        id: unpack-artifact
+        run: |
+          echo "Unzipping plan file"
+          unzip ${{ github.workspace }}/terraform-plan.zip
+          sleep 5
+          echo "Echoing current working directory"
+          pwd
+          echo "Listing contents of ${{ github.workspace }}"
+          ls -al ${{ github.workspace }}
+          echo "Listing contents of current working directory"
+          ls -al
+          echo "Listing contents of ${{ github.workspace }}/main"
+          ls -al ${{ github.workspace }}/main
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
@@ -118,4 +130,4 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        run: terraform apply ${{ github.workspace }}/terraform.tfplan
+        run: terraform apply ./terraform.tfplan
