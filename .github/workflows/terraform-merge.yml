@@ -35,7 +35,7 @@ jobs:
 
       # Download plan file as build artifact
       - name: Download workflow artifact
-        uses: dawidd6/action-download-artifact@v2.23.0
+        uses: dawidd6/action-download-artifact@v2
         id: download-artifact
         with:
           # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
@@ -76,7 +76,7 @@ jobs:
           # Optional, check the workflow run to whether it has an artifact
           # then will get the last available artifact from the previous workflow
           # default false, just try to download from the last one
-          check_artifacts:  false
+          check_artifacts:  true
           # Optional, search for the last workflow run whose stored an artifact named as in `name` input
           # default false
           search_artifacts: false
