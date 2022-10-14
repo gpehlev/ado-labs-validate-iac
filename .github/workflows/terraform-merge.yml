@@ -94,7 +94,8 @@ jobs:
         run: |
           unzip ${{ github.workspace }}/terraform-plan.zip
           sleep 5
-          ls -al
+          pwd
+          ls -al ${{ github.workspace }}
           stat ${{ github.workspace }}/terraform.tfplan
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
