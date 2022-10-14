@@ -100,7 +100,6 @@ jobs:
           echo "Listing contents of ${{ github.workspace }}"
           ls -al ${{ github.workspace }}
           echo "Checking if terraform.tfplan exists under ${{ github.workspace }}"
-          stat ${{ github.workspace }}/terraform.tfplan
           echo "Listing contents of current working directory"
           ls -al
           echo "Listing contents of ${{ github.workspace }}/main"
