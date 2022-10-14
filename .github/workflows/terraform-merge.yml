@@ -99,7 +99,6 @@ jobs:
           pwd
           echo "Listing contents of ${{ github.workspace }}"
           ls -al ${{ github.workspace }}
-          echo "Checking if terraform.tfplan exists under ${{ github.workspace }}"
           echo "Listing contents of current working directory"
           ls -al
           echo "Listing contents of ${{ github.workspace }}/main"
@@ -131,4 +130,4 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        run: terraform apply ${{ github.workspace }}/terraform.tfplan
+        run: terraform apply ./terraform.tfplan
