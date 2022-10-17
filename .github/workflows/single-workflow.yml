@@ -14,7 +14,7 @@ jobs:
 
   PullRequest:
     name: 'PullRequest'
-    if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
