@@ -14,12 +14,12 @@ jobs:
 
   PullRequest:
     name: 'PullRequest'
-    if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
       - name: Debug message
-        run: echo "This step is triggered by a pull request to main branch"
+        run: echo "This step is triggered by a pull request"
 
   Merge:
     name: 'Merge'
