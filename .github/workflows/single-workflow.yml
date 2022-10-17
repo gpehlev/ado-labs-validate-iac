@@ -1,16 +1,6 @@
 name: 'TestSingleWorkflow'
 
-on:
-  workflow_dispatch:
-  push:
-    branches-ignore:
-      - main
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [workflow_dispatch, push, pull_request]
 
 jobs:
   PullRequest:
