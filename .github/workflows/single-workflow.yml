@@ -3,15 +3,6 @@ name: 'TestSingleWorkflow'
 on: [workflow_dispatch, push, pull_request]
 
 jobs:
-  PullRequest:
-    name: 'PullRequest'
-    if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Debug message
-        run: echo "This step is triggered by a pull request to main branch"
-
   CodeCommit:
     name: 'CodeCommit'
     if: github.ref != 'refs/heads/main' && github.event_name == 'push'
@@ -20,6 +11,15 @@ jobs:
     steps:
       - name: Debug message
         run: echo "This step is triggered by a push to non-main branch"
+
+  PullRequest:
+    name: 'PullRequest'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Debug message
+        run: echo "This step is triggered by a pull request to main branch"
 
   Merge:
     name: 'Merge'
