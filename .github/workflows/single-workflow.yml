@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Debug message
-        run: echo "This step is triggered by a pull request to main branch"
+        run: echo "This step is triggered by a pull request"
 
   Merge:
     name: 'Merge'
