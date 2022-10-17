@@ -1,0 +1,43 @@
+name: 'TestSingleWorkflow'
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  PullRequest:
+    name: 'PullRequest'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Debug message
+        run: echo "This step is triggered by a pull request to main branch"
+
+jobs:
+  CodeCommit:
+    name: 'CodeCommit'
+    if: github.ref != 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Debug message
+        run: echo "This step is triggered by a push to non-main branch"
+
+jobs:
+  Merge:
+    name: 'Merge'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Debug message
+        run: echo "This step is triggered by a merge to main branch"
