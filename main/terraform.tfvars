@@ -1,6 +1,6 @@
 # Start with these values
 asp_tier = "Standard"
-asp_size = "S3"
+asp_size = "S2"
 
 #Change to these values
 #asp_tier = "PremiumV2"
