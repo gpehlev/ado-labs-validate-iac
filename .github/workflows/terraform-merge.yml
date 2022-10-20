@@ -13,7 +13,7 @@ jobs:
   terraform:
     name: 'Terraform-Merge'
     runs-on: ubuntu-latest
-    # if: github.event.review.state == 'approved'
+    if: github.event.review.state == 'approved'
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest or windows-latest. Set the working directory to main for the config files
     defaults:
