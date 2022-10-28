@@ -34,11 +34,23 @@ jobs:
           terraform_version: latest
           # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }} # Disabled: The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file (optional)
 
+      - name: Setup Terragrunt
+        run: |
+          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.39.2/terragrunt_linux_amd64"
+          sudo chmod +x /bin/terragrunt
+          terragrunt -v
+
       # Run terraform fmt
       - name: Terraform Format
         id: fmt
         if: github.ref != 'refs/heads/main'
         run: terraform fmt -check
+
+      # Run terragrunt hclfmt
+      - name: Terragrunt Format
+        id: tg-hclfmt
+        if: github.ref != 'refs/heads/main'
+        run: terragrunt hclfmt
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
@@ -58,3 +70,9 @@ jobs:
         id: validate
         if: github.ref != 'refs/heads/main' && (success() || failure())
         run: terraform validate -no-color
+
+      # Run terragrunt validate
+      - name: Terragrunt Validate
+        id: tg-validate
+        if: github.ref != 'refs/heads/main' && (success() || failure())
+        run: terragrunt run-all validate

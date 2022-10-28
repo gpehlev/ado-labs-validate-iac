@@ -36,6 +36,11 @@
 #   }
 # }
 
-include {
-  path = find_in_parent_folders()
+# include {
+#   path = find_in_parent_folders()
+# }
+
+inputs = {
+  asp_tier = "Shared"
+  asp_size = "D1"
 }
