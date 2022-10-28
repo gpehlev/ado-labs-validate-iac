@@ -1,4 +1,4 @@
-name: 'Terraform-Merge'
+name: 'Terraform-Merge'-
 
 on:
   workflow_dispatch:
@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v3
 
       # Install the preferred version of Terraform CLI
-      - name: Setup Terraform
+      - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: latest
@@ -36,7 +36,7 @@ jobs:
       # Download plan file as build artifact
       - name: Download workflow artifact
         uses: dawidd6/action-download-artifact@v2
-        id: download-artifact
+        id: download_artifact
         with:
           # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
           # Required, if the artifact is from a different repo
@@ -91,14 +91,14 @@ jobs:
           if_no_artifact_found: fail
 
       # - name: Unpack workflow artifact
-      #   id: unpack-artifact
+      #   id: unpack_artifact
       #   run: |
       #     echo "Unzipping Terraform plan file"
       #     unzip ${{ github.workspace }}/terraform-plan.zip
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        id: init
+        id: tf_init
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
@@ -111,11 +111,12 @@ jobs:
 
       # # Run terraform validate
       # - name: Terraform Validate
-      #   id: validate
+      #   id: tf_validate
       #   # if: github.ref != 'refs/heads/main' && (success() || failure()) # Disabled for the time being
       #   run: terraform validate -no-color
 
       - name: Terraform Apply
+        id: tf_apply
         # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
