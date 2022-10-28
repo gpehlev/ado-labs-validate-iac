@@ -44,7 +44,7 @@ jobs:
 
       # Install Checkov
       - name: Install Checkov
-        run: pip install checkov
+        run: sudo pip install checkov
 
       # Run terraform fmt
       - name: Terraform Format
