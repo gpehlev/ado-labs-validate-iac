@@ -1,4 +1,4 @@
-name: 'Terraform-Merge'-
+name: 'Terraform-Merge'
 
 on:
   workflow_dispatch:
