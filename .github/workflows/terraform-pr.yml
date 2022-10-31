@@ -44,7 +44,9 @@ jobs:
 
       # Install Checkov
       - name: Install Checkov
-        run: pip3 install checkov
+        run: |
+          pip install checkov
+          pip install -U checkov
 
       # Run terraform fmt
       - name: Terraform Format
@@ -85,7 +87,7 @@ jobs:
 
       # Verify files with Checkov
       - name: Verify files with Checkov
-        run: checkov --directory . --output junitxml > ./Checkov-Module-Report.xml
+        run: checkov --directory . --output junitxml --output cli --output-file-path .
 
       # Publish test results
 
