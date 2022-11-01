@@ -101,11 +101,19 @@ jobs:
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
 
       # Publish Checkov test results
-      - name: Publish Checkov Test Results
-        id: checkov_test_results
-        uses: mikepenz/action-junit-report@v3.5.2
+      # - name: Publish Checkov Test Results
+      #   id: checkov_test_results
+      #   uses: mikepenz/action-junit-report@v3.5.2
+      #   with:
+      #     report_paths: './checkov/checkov-test-results.xml'
+
+      - name: Test Reporter
+        uses: dorny/test-reporter@v1.6.0
         with:
-          report_paths: './checkov/checkov-test-results.xml'
+          name: Checkov Tests
+          path: ./checkov/checkov-test-results.xml
+          list-tests: 'all'
+          reporter: jest-junit
 
       # ALL CODE BELOW HAS BEEN COMMENTED OUT AS TERRAFORM COMMANDS NEED TO BE CONVERTED TO TERRAGRUNT
 
