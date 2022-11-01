@@ -111,7 +111,7 @@ jobs:
         uses: dorny/test-reporter@v1.6.0
         with:
           name: Checkov Tests
-          path: ./checkov/checkov-test-results.xml
+          path: '*.xml'
           list-tests: 'all'
           reporter: jest-junit
 
