@@ -112,7 +112,7 @@ jobs:
       # Publish Checkov test results
       - name: Publish Checkov Test Results
         id: checkov_test_results
-        uses: mikepenz/action-junit-report
+        uses: mikepenz/action-junit-report@v3.5.2
         with:
           report_paths: './Checkov_Test_Report.xml'
 
