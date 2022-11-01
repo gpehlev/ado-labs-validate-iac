@@ -100,62 +100,69 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
 
-      # TODO: Publish Checkov test results
-
-      - name: Terraform Plan
-        id: tf_plan
-        env:
-          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        # if: github.event_name == 'pull_request' # Disabled for the time being
-        run: terraform plan -no-color -out=$GITHUB_WORKSPACE/terraform.tfplan
-        continue-on-error: true # Really?
-
-      # TODO: Verify Terraform plan file with Checkov
-
-      # TODO: Publish Checkov test results for plan file
-
-      # Insert plan as pull request comments
-      - uses: actions/github-script@v6
-        # if: github.event_name == 'pull_request' # Disabled for the time being
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      # Publish Checkov test results
+      - name: Publish Checkov Test Results
+        id: checkov_test_results
+        uses: mikepenz/action-junit-report@v3.5.2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-        # with:
-        #   github-token: ${{ secrets.GITHUB_TOKEN }} # Should not be needed
-          script: |
-            const output = `#### Terraform format and style: \`${{ steps.fmt.outcome }}\`
-            #### Terraform initialization: \`${{ steps.init.outcome }}\`
-            #### Terraform validation: \`${{ steps.validate.outcome }}\`
-            #### Terraform plan: \`${{ steps.plan.outcome }}\`
+          report_paths: './checkov/checkov-test-results.xml'
 
-            <details><summary>Show Plan</summary>
+      # ALL CODE BELOW HAS BEEN COMMENTED OUT AS TERRAFORM COMMANDS NEED TO BE CONVERTED TO TERRAGRUNT
 
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
+      # - name: Terraform Plan
+      #   id: tf_plan
+      #   env:
+      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      #   # if: github.event_name == 'pull_request' # Disabled for the time being
+      #   run: terraform plan -no-color -out=$GITHUB_WORKSPACE/terraform.tfplan
+      #   continue-on-error: true # Really?
 
-            </details>
+      # # TODO: Verify Terraform plan file with Checkov
 
-            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+      # # TODO: Publish Checkov test results for plan file
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+      # # Insert plan as pull request comments
+      # - uses: actions/github-script@v6
+      #   # if: github.event_name == 'pull_request' # Disabled for the time being
+      #   env:
+      #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   # with:
+      #   #   github-token: ${{ secrets.GITHUB_TOKEN }} # Should not be needed
+      #     script: |
+      #       const output = `#### Terraform format and style: \`${{ steps.fmt.outcome }}\`
+      #       #### Terraform initialization: \`${{ steps.init.outcome }}\`
+      #       #### Terraform validation: \`${{ steps.validate.outcome }}\`
+      #       #### Terraform plan: \`${{ steps.plan.outcome }}\`
 
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
+      #       <details><summary>Show Plan</summary>
 
-      # Upload plan file as build artifact
+      #       \`\`\`\n
+      #       ${process.env.PLAN}
+      #       \`\`\`
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: terraform-plan
-          path: ${{ github.workspace }}/terraform.tfplan
+      #       </details>
+
+      #       *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+      #       github.rest.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
+
+      # - name: Terraform Plan Status
+      #   if: steps.plan.outcome == 'failure'
+      #   run: exit 1
+
+      # # Upload plan file as build artifact
+
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: terraform-plan
+      #     path: ${{ github.workspace }}/terraform.tfplan
