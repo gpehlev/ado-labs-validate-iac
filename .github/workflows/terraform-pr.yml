@@ -111,11 +111,11 @@ jobs:
           ls -al
 
       # Publish Checkov test results
-      - name: Publish Checkov Test Results
-        id: checkov_test_results
-        uses: mikepenz/action-junit-report@v3.5.2
-        with:
-          report_paths: '**/Checkov_Test_Report.xml'
+      # - name: Publish Checkov Test Results
+      #   id: checkov_test_results
+      #   uses: mikepenz/action-junit-report@v3.5.2
+      #   with:
+      #     report_paths: '**/Checkov_Test_Report.xml'
 
       # - name: Test Reporter
       #   uses: dorny/test-reporter@v1.6.0
@@ -124,6 +124,11 @@ jobs:
       #     path: './Checkov_Test_Report.xml'
       #     list-tests: 'all'
       #     reporter: java-junit
+
+      - name: Publish Checkov Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2.2.0
+        with:
+          junit_files: "**/*.xml"
 
       # ALL CODE BELOW HAS BEEN COMMENTED OUT AS TERRAFORM COMMANDS NEED TO BE CONVERTED TO TERRAGRUNT
 
