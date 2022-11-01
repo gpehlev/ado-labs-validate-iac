@@ -100,13 +100,6 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
 
-      # Publish Checkov test results
-      # - name: Publish Checkov Test Results
-      #   id: checkov_test_results
-      #   uses: mikepenz/action-junit-report@v3.5.2
-      #   with:
-      #     report_paths: './checkov-test-results.xml'
-
       - name: Debug Commands
         id: debug_commands
         run: |
@@ -116,13 +109,20 @@ jobs:
           pwd
           ls -al
 
-      - name: Test Reporter
-        uses: dorny/test-reporter@v1.6.0
+      # Publish Checkov test results
+      - name: Publish Checkov Test Results
+        id: checkov_test_results
+        uses: mikepenz/action-junit-report
         with:
-          name: Checkov Tests
-          path: './Checkov_Test_Report.xml'
-          list-tests: 'all'
-          reporter: java-junit
+          report_paths: './Checkov_Test_Report.xml'
+
+      # - name: Test Reporter
+      #   uses: dorny/test-reporter@v1.6.0
+      #   with:
+      #     name: Checkov Tests
+      #     path: './Checkov_Test_Report.xml'
+      #     list-tests: 'all'
+      #     reporter: java-junit
 
       # ALL CODE BELOW HAS BEEN COMMENTED OUT AS TERRAFORM COMMANDS NEED TO BE CONVERTED TO TERRAGRUNT
 
