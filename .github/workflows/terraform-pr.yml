@@ -110,7 +110,7 @@ jobs:
       - name: Debug Commands
         id: debug_commands
         run: |
-          echo "$CHECKOV_RESULTS" > checkov_results.xml
+          echo "$CHECKOV_RESULTS" > Checkov_Test_Report.xml
           pwd
           ls ..
           pwd
@@ -120,7 +120,7 @@ jobs:
         uses: dorny/test-reporter@v1.6.0
         with:
           name: Checkov Tests
-          path: '*.xml'
+          path: './Checkov_Test_Report.xml'
           list-tests: 'all'
           reporter: java-junit
 
