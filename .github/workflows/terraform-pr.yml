@@ -107,13 +107,19 @@ jobs:
       #   with:
       #     report_paths: './checkov/checkov-test-results.xml'
 
+      - name: Debug
+        id: debug_commands
+        run: |
+          pwd
+          ls -al
+
       - name: Test Reporter
         uses: dorny/test-reporter@v1.6.0
         with:
           name: Checkov Tests
           path: '*.xml'
           list-tests: 'all'
-          reporter: jest-junit
+          reporter: java-junit
 
       # ALL CODE BELOW HAS BEEN COMMENTED OUT AS TERRAFORM COMMANDS NEED TO BE CONVERTED TO TERRAGRUNT
 
