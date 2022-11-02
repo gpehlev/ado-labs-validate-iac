@@ -131,6 +131,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         with:
           junit_files: "**/Checkov_Verify_Modules.xml"
+          report_individual_runs: true
 
       - name: Terraform Plan
         id: tf_plan
@@ -175,6 +176,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         with:
           junit_files: "**/Checkov_Verify_Plan.xml"
+          report_individual_runs: true
 
       # # Insert plan as pull request comments
       # - uses: actions/github-script@v6
