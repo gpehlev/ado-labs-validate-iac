@@ -132,8 +132,6 @@ jobs:
         with:
           junit_files: "**/*.xml"
 
-      # ALL CODE BELOW HAS BEEN COMMENTED OUT AS TERRAFORM COMMANDS NEED TO BE CONVERTED TO TERRAGRUNT
-
       - name: Terraform Plan
         id: tf_plan
         env:
