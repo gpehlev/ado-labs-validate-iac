@@ -79,7 +79,7 @@ jobs:
         if: github.ref != 'refs/heads/main' && (success() || failure())
         run: terragrunt run-all validate
 
-      # Verify files with Checkov
+      # Verify Terraform module files with Checkov
       - name: Checkov GitHub Action
         id: checkov
         uses: bridgecrewio/checkov-action@master
@@ -109,6 +109,8 @@ jobs:
           ls ..
           pwd
           ls -al
+          cd $GITHUB_WORKSPACE
+          pwd
 
       # Publish Checkov test results
       # - name: Publish Checkov Test Results
@@ -132,18 +134,43 @@ jobs:
 
       # ALL CODE BELOW HAS BEEN COMMENTED OUT AS TERRAFORM COMMANDS NEED TO BE CONVERTED TO TERRAGRUNT
 
-      # - name: Terraform Plan
-      #   id: tf_plan
-      #   env:
-      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      #   # if: github.event_name == 'pull_request' # Disabled for the time being
-      #   run: terraform plan -no-color -out=$GITHUB_WORKSPACE/terraform.tfplan
-      #   continue-on-error: true # Really?
+      - name: Terraform Plan
+        id: tf_plan
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        # if: github.event_name == 'pull_request' # Disabled for the time being
+        run: terraform plan -no-color -out=$GITHUB_WORKSPACE/terraform.json
+        continue-on-error: true # Really?
 
-      # # TODO: Verify Terraform plan file with Checkov
+      # Verify Terraform plan file with Checkov
+      - name: Checkov GitHub Action
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        continue-on-error: true
+        with:
+          # directory: .
+          file: $GITHUB_WORKSPACE/terraform.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
+          # check: CKV_AZURE_14 # optional: run only a specific check_id. can be comma separated list
+          # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
+          # quiet: true # optional: display only failed checks
+          # soft_fail: true # optional: do not return an error code if there are failed checks
+          framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+          output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+          output_file_path: . # folder and name of results file
+          download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
+          # var_file: ./testdir/gocd.yaml # optional: variable files to load in addition to the default files. Currently only supported for source Terraform and Helm chart scans.
+          log_level: DEBUG # optional: set log level. Default WARNING
+          # config_file: path/this_file
+          # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
+          # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
+
+      - name: Debug Commands 2
+        id: debug_commands_2
+        run: |
+          echo "$CHECKOV_RESULTS" > Checkov_Test_Report1.xml
 
       # # TODO: Publish Checkov test results for plan file
 
