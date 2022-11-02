@@ -80,8 +80,8 @@ jobs:
         run: terragrunt run-all validate
 
       # Verify Terraform module files with Checkov
-      - name: Checkov Verify Files
-        id: checkov_verify_files
+      - name: Checkov Verify Modules
+        id: checkov_verify_modules
         uses: bridgecrewio/checkov-action@master
         continue-on-error: true
         with:
@@ -104,7 +104,7 @@ jobs:
       - name: Debug Commands
         id: debug_commands
         run: |
-          echo "$CHECKOV_RESULTS" > Checkov_Test_Report.xml
+          echo "$CHECKOV_RESULTS" > Checkov_Verify_Modules.xml
           pwd
           ls ..
           pwd
@@ -127,10 +127,10 @@ jobs:
       #     list-tests: 'all'
       #     reporter: java-junit
 
-      - name: Publish Checkov Test Results
+      - name: Publish Checkov Module Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         with:
-          junit_files: "**/*.xml"
+          junit_files: "**/Checkov_Verify_Modules.xml"
 
       - name: Terraform Plan
         id: tf_plan
@@ -169,8 +169,12 @@ jobs:
         id: debug_commands_2
         run: |
           echo "$CHECKOV_RESULTS"
+          echo "$CHECKOV_RESULTS" > Checkov_Verify_Plan.xml
 
-      # # TODO: Publish Checkov test results for plan file
+      - name: Publish Checkov Plan Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2.2.0
+        with:
+          junit_files: "**/Checkov_Verify_Plan.xml"
 
       # # Insert plan as pull request comments
       # - uses: actions/github-script@v6
