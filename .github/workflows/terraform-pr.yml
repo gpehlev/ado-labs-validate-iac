@@ -81,7 +81,7 @@ jobs:
 
       # Verify Terraform module files with Checkov
       - name: Checkov GitHub Action
-        id: checkov
+        id: checkov_verify_files
         uses: bridgecrewio/checkov-action@master
         continue-on-error: true
         with:
@@ -147,7 +147,7 @@ jobs:
 
       # Verify Terraform plan file with Checkov
       - name: Checkov GitHub Action
-        id: checkov
+        id: checkov_verify_plan
         uses: bridgecrewio/checkov-action@master
         continue-on-error: true
         with:
