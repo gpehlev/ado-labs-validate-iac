@@ -170,7 +170,7 @@ jobs:
       - name: Debug Commands 2
         id: debug_commands_2
         run: |
-          echo "$CHECKOV_RESULTS" > Checkov_Test_Report1.xml
+          echo "$CHECKOV_RESULTS"
 
       # # TODO: Publish Checkov test results for plan file
 
