@@ -80,7 +80,7 @@ jobs:
         run: terragrunt run-all validate
 
       # Verify Terraform module files with Checkov
-      - name: Checkov GitHub Action
+      - name: Checkov Verify Files
         id: checkov_verify_files
         uses: bridgecrewio/checkov-action@master
         continue-on-error: true
@@ -146,7 +146,7 @@ jobs:
         continue-on-error: true # Really?
 
       # Verify Terraform plan file with Checkov
-      - name: Checkov GitHub Action
+      - name: Checkov Verify Plan
         id: checkov_verify_plan
         uses: bridgecrewio/checkov-action@master
         continue-on-error: true
