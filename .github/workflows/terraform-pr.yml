@@ -100,6 +100,10 @@ jobs:
           # config_file: path/this_file
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
+          comment_mode: failures
+          compare_to_earlier_commit: false
+          job_summary: true
+          check_name: Checkov Module Test Results
 
       - name: Output Checkov Module Test
         id: output_checkov_module_test
@@ -124,7 +128,7 @@ jobs:
       - name: Publish Checkov Module Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         with:
-          junit_files: "**/Checkov_Verify_Modules.xml"
+          junit_files: "**/Checkov_Test_Modules.xml"
           report_individual_runs: true
 
       - name: Terraform Plan
@@ -159,6 +163,10 @@ jobs:
           # config_file: path/this_file
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
+          comment_mode: failures
+          compare_to_earlier_commit: false
+          job_summary: true
+          check_name: Checkov Plan Test Results
 
       - name: Output Checkov Plan Test
         id: output_checkov_plan_test
