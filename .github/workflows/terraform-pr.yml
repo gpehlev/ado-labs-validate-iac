@@ -103,7 +103,7 @@ jobs:
 
       - name: Output Checkov Module Test
         id: output_checkov_module_test
-        if: ${{ steps.checkov_verify_modules.conclusion == 'success' || 'failure'}}
+        if: (success() || failure())
         run: |
           echo "$CHECKOV_RESULTS" > Checkov_Test_Modules.xml
 
