@@ -51,7 +51,7 @@ jobs:
       # Run terragrunt hclfmt
       - name: Terragrunt Format
         id: tg_hclfmt
-        if: github.ref != 'refs/heads/main'
+        # if: github.ref != 'refs/heads/main'
         run: terragrunt hclfmt
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
@@ -76,7 +76,7 @@ jobs:
       # Run terragrunt validate
       - name: Terragrunt Validate
         id: tg_validate
-        if: github.ref != 'refs/heads/main' && (success() || failure())
+        # if: github.ref != 'refs/heads/main' && (success() || failure())
         run: terragrunt run-all validate
 
       # Verify Terraform module files with Checkov
@@ -101,16 +101,10 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
 
-      - name: Debug Commands
-        id: debug_commands
+      - name: Output Checkov Module Test
+        id: output_checkov_module_test
         run: |
-          echo "$CHECKOV_RESULTS" > Checkov_Verify_Modules.xml
-          pwd
-          ls ..
-          pwd
-          ls -al
-          cd $GITHUB_WORKSPACE
-          pwd
+          echo "$CHECKOV_RESULTS" > Checkov_Test_Modules.xml
 
       # Publish Checkov test results
       # - name: Publish Checkov Test Results
@@ -166,16 +160,16 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
 
-      - name: Debug Commands 2
-        id: debug_commands_2
+      - name: Output Checkov Plan Test
+        id: output_checkov_plan_test
         run: |
           echo "$CHECKOV_RESULTS"
-          echo "$CHECKOV_RESULTS" > Checkov_Verify_Plan.xml
+          echo "$CHECKOV_RESULTS" > Checkov_Test_Plan.xml
 
       - name: Publish Checkov Plan Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         with:
-          junit_files: "**/Checkov_Verify_Plan.xml"
+          junit_files: "**/Checkov_Test_Plan.xml"
           report_individual_runs: true
 
       # # Insert plan as pull request comments
