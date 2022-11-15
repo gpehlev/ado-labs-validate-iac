@@ -163,7 +163,7 @@ jobs:
           echo "Executing terraform show to output plan file to JSON format"
           terraform show -json $GITHUB_WORKSPACE/terragrunt_plan.tfplan > $GITHUB_WORKSPACE/terragrunt_plan.json
           echo "Listing contents of $GITHUB_WORKSPACE again"
-          ls -al
+          ls -al $GITHUB_WORKSPACE
 
       # Verify Terraform plan file with Checkov
       - name: Checkov Verify Plan
@@ -219,7 +219,7 @@ jobs:
         #   github-token: ${{ secrets.GITHUB_TOKEN }} # Should not be needed
           script: |
             const output = `#### Terraform format and style: \`${{ steps.tf_fmt.outcome }}\`
-            #### Terraform format and style: \`${{ steps.tg_hclfmt.outcome }}\`
+            #### Terragrunt format and style: \`${{ steps.tg_hclfmt.outcome }}\`
             #### Terraform initialization: \`${{ steps.init.outcome }}\`
             #### Terraform validation: \`${{ steps.validate.outcome }}\`
             #### Terraform plan: \`${{ steps.plan.outcome }}\`
