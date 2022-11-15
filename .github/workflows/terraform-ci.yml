@@ -66,14 +66,14 @@ jobs:
           CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
         run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
 
-      # Run terraform validate
-      - name: Terraform Validate
-        id: tf_validate
-        if: github.ref != 'refs/heads/main' && (success() || failure())
-        run: terraform validate -no-color
+      # # Run terraform validate
+      # - name: Terraform Validate
+      #   id: validate
+      #   if: github.ref != 'refs/heads/main' && (success() || failure())
+      #   run: terraform validate -no-color
 
       # Run terragrunt validate
       - name: Terragrunt Validate
-        id: tg_validate
+        id: validate
         if: github.ref != 'refs/heads/main' && (success() || failure())
         run: terragrunt run-all validate
