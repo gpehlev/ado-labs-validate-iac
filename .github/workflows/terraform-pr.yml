@@ -91,7 +91,7 @@ jobs:
           # soft_fail: true # optional: do not return an error code if there are failed checks
           framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
           output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
-          output_file_path: . # folder and name of results file
+          output_file_path: $GITHUB_WORKSPACE # folder and name of results file
           download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
           # var_file: ./testdir/gocd.yaml # optional: variable files to load in addition to the default files. Currently only supported for source Terraform and Helm chart scans.
           log_level: DEBUG # optional: set log level. Default WARNING
@@ -103,7 +103,7 @@ jobs:
         id: output_checkov_module_test
         if: (success() || failure())
         run: |
-          echo "$CHECKOV_RESULTS" > Checkov_Test_Modules.xml
+          echo "$CHECKOV_RESULTS" > $GITHUB_WORKSPACE/Checkov_Test_Modules.xml
 
       # Publish Checkov test results
       # - name: Publish Checkov Test Results
@@ -124,7 +124,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         if: (success() || failure())
         with:
-          junit_files: "**/Checkov_Test_Modules.xml"
+          junit_files: "**/$GITHUB_WORKSPACE/Checkov_Test_Modules.xml"
           report_individual_runs: true
           comment_mode: failures
           compare_to_earlier_commit: false
@@ -149,18 +149,21 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         # if: github.event_name == 'pull_request' # Disabled for the time being
-        run: terragrunt run-all plan -no-color -out=$GITHUB_WORKSPACE/terragrunt.tfplan
+        run: terragrunt run-all plan -no-color -out=$GITHUB_WORKSPACE/terragrunt_plan.tfplan
 
       # Output plan file to JSON format for Checkov Verify Plan step
       - name: Output plan file to JSON
         id: plan_to_json
         run: |
-          echo "Echoing current directory"
+          echo "Echoing current directory and listing its contents"
           pwd
+          ls -al
           echo "Listing contents of $GITHUB_WORKSPACE"
           ls -al $GITHUB_WORKSPACE
           echo "Executing terraform show to output plan file to JSON format"
-          terraform show -json $GITHUB_WORKSPACE/terragrunt.tfplan > $GITHUB_WORKSPACE/terragrunt_plan.json
+          terraform show -json $GITHUB_WORKSPACE/terragrunt_plan.tfplan > $GITHUB_WORKSPACE/terragrunt_plan.json
+          echo "Listing contents of $GITHUB_WORKSPACE again"
+          ls -al
 
       # Verify Terraform plan file with Checkov
       - name: Checkov Verify Plan
@@ -175,7 +178,7 @@ jobs:
           # soft_fail: true # optional: do not return an error code if there are failed checks
           framework: terraform_plan # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
           output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
-          output_file_path: . # folder and name of results file
+          output_file_path: $GITHUB_WORKSPACE # folder and name of results file
           download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
           # var_file: ./testdir/gocd.yaml # optional: variable files to load in addition to the default files. Currently only supported for source Terraform and Helm chart scans.
           log_level: DEBUG # optional: set log level. Default WARNING
@@ -187,17 +190,23 @@ jobs:
         id: output_checkov_plan_test
         run: |
           echo "$CHECKOV_RESULTS"
-          echo "$CHECKOV_RESULTS" > Checkov_Test_Plan.xml
+          echo "$CHECKOV_RESULTS" > $GITHUB_WORKSPACE/Checkov_Test_Plan.xml
 
       - name: Publish Checkov Plan Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         with:
-          junit_files: "**/Checkov_Test_Plan.xml"
+          junit_files: "**/$GITHUB_WORKSPACE/Checkov_Test_Plan.xml"
           report_individual_runs: true
           comment_mode: failures
           compare_to_earlier_commit: false
           job_summary: true
           check_name: Checkov Plan Test Results
+
+      # Debug Commands [TO BE REMOVED]
+      - name: Debug Commands
+        run: |
+          echo "Listing contents of $GITHUB_WORKSPACE"
+          ls -al $GITHUB_WORKSPACE
 
       # Insert Terraform plan as pull request comments
       - uses: actions/github-script@v6
@@ -241,4 +250,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: terraform-plan
-          path: ${{ github.workspace }}/terragrunt.tfplan
+          path: ${{ github.workspace }}/terragrunt_plan.tfplan
