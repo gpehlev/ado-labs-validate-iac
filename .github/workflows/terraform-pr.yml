@@ -124,7 +124,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         if: (success() || failure())
         with:
-          junit_files: "**/$GITHUB_WORKSPACE/Checkov_Test_Modules.xml"
+          junit_files: "**/Checkov_Test_Modules.xml"
           report_individual_runs: true
           comment_mode: failures
           compare_to_earlier_commit: false
@@ -195,7 +195,7 @@ jobs:
       - name: Publish Checkov Plan Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         with:
-          junit_files: "**/$GITHUB_WORKSPACE/Checkov_Test_Plan.xml"
+          junit_files: "**/Checkov_Test_Plan.xml"
           report_individual_runs: true
           comment_mode: failures
           compare_to_earlier_commit: false
