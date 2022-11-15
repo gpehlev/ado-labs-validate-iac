@@ -149,8 +149,17 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         # if: github.event_name == 'pull_request' # Disabled for the time being
+        run: terragrunt run-all plan -no-color -out=$GITHUB_WORKSPACE/terragrunt.tfplan
+
+      # Output plan file to JSON format for Checkov Verify Plan step
+      - name: Output plan file to JSON
+        id: plan_to_json
         run: |
-          terragrunt run-all plan -no-color -out=$GITHUB_WORKSPACE/terragrunt.tfplan
+          echo "Echoing current directory"
+          pwd
+          echo "Listing contents of $GITHUB_WORKSPACE"
+          ls -al $GITHUB_WORKSPACE
+          echo "Executing terraform show to output plan file to JSON format"
           terraform show -json $GITHUB_WORKSPACE/terragrunt.tfplan > $GITHUB_WORKSPACE/terragrunt_plan.json
 
       # Verify Terraform plan file with Checkov
@@ -201,7 +210,7 @@ jobs:
         #   github-token: ${{ secrets.GITHUB_TOKEN }} # Should not be needed
           script: |
             const output = `#### Terraform format and style: \`${{ steps.tf_fmt.outcome }}\`
-            #### Terragrunt format and style: \`${{ steps.tg_hclfmt.outcome }}\`
+            #### Terraform format and style: \`${{ steps.tg_hclfmt.outcome }}\`
             #### Terraform initialization: \`${{ steps.init.outcome }}\`
             #### Terraform validation: \`${{ steps.validate.outcome }}\`
             #### Terraform plan: \`${{ steps.plan.outcome }}\`
