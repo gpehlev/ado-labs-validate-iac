@@ -99,11 +99,11 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
 
-      - name: Output Checkov Module Test
+      - name: Output Checkov Module Test Results
         id: output_checkov_module_test
         if: (success() || failure())
         run: |
-          echo "$CHECKOV_RESULTS" > $GITHUB_WORKSPACE/Checkov_Test_Modules.xml
+          echo "$CHECKOV_RESULTS" > $GITHUB_WORKSPACE/Checkov_Module_Test_Results.xml
 
       # Publish Checkov test results
       # - name: Publish Checkov Test Results
@@ -124,7 +124,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         if: (success() || failure())
         with:
-          junit_files: "**/Checkov_Test_Modules.xml"
+          junit_files: "**/Checkov_Module_Test_Results.xml"
           report_individual_runs: true
           comment_mode: failures
           compare_to_earlier_commit: false
@@ -186,16 +186,16 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
 
-      - name: Output Checkov Plan Test
+      - name: Output Checkov Plan Test Results
         id: output_checkov_plan_test
         run: |
           echo "$CHECKOV_RESULTS"
-          echo "$CHECKOV_RESULTS" > $GITHUB_WORKSPACE/Checkov_Test_Plan.xml
+          echo "$CHECKOV_RESULTS" > $GITHUB_WORKSPACE/Checkov_Plan_Test_Results.xml
 
       - name: Publish Checkov Plan Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2.2.0
         with:
-          junit_files: "**/Checkov_Test_Plan.xml"
+          junit_files: "**/Checkov_Plan_Test_Results.xml"
           report_individual_runs: true
           comment_mode: failures
           compare_to_earlier_commit: false
