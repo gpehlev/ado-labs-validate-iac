@@ -80,7 +80,7 @@ jobs:
       # Verify Terraform module files with Checkov
       - name: Checkov Verify Modules
         id: checkov_verify_modules
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@v12.1347.0
         # continue-on-error: true
         with:
           directory: .
@@ -172,13 +172,13 @@ jobs:
       # Verify Terraform plan file with Checkov
       - name: Checkov Verify Plan
         id: checkov_verify_plan
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@v12.1347.0
         with:
           # directory: .
           file: terragrunt_plan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
           # check: CKV_AZURE_14 # optional: run only a specific check_id. can be comma separated list
           # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
-          # quiet: true # optional: display only failed checks
+          quiet: true # optional: display only failed checks
           # soft_fail: true # optional: do not return an error code if there are failed checks
           framework: terraform_plan # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
           output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
