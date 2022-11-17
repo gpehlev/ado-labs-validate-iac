@@ -151,7 +151,7 @@ jobs:
         # if: github.event_name == 'pull_request' # Disabled for the time being
         run: terragrunt run-all plan -no-color -out=$GITHUB_WORKSPACE/terragrunt_plan.tfplan
 
-      # Output plan file to JSON format for Checkov Verify Plan step. Note: The output of 'terraform show' will be a single line. For that reason Checkov will report all findings as line number Thus, we convert the JSON file using jq into multiple lines making the scan result easier to read
+      # Output plan file to JSON format for Checkov Verify Plan step
       - name: Output plan file to JSON
         id: plan_to_json
         run: |
@@ -176,7 +176,7 @@ jobs:
           # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
           # quiet: true # optional: display only failed checks
           # soft_fail: true # optional: do not return an error code if there are failed checks
-          framework: terraform_plan # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+          # framework: terraform_plan # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
           output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
           output_file_path: $GITHUB_WORKSPACE # folder and name of results file
           download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
