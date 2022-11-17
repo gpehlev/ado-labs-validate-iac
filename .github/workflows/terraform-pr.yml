@@ -36,7 +36,7 @@ jobs:
       # Install Terragrunt
       - name: Install Terragrunt
         run: |
-          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.39.2/terragrunt_linux_amd64"
+          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.39.2/terragrunt_linux_amd64" # Version to be installed should be a variable
           sudo chmod +x /bin/terragrunt
           terragrunt -v
 
@@ -151,7 +151,7 @@ jobs:
         # if: github.event_name == 'pull_request' # Disabled for the time being
         run: terragrunt run-all plan -no-color -out=$GITHUB_WORKSPACE/terragrunt_plan.tfplan
 
-      # Output plan file to JSON format for Checkov Verify Plan step
+      # Output plan file to JSON format for Checkov Verify Plan step. Note: The output of 'terraform show' will be a single line. For that reason Checkov will report all findings as line number Thus, we convert the JSON file using jq into multiple lines making the scan result easier to read
       - name: Output plan file to JSON
         id: plan_to_json
         run: |
@@ -161,7 +161,7 @@ jobs:
           echo "Listing contents of $GITHUB_WORKSPACE"
           ls -al $GITHUB_WORKSPACE
           echo "Executing terraform show to output plan file to JSON format"
-          terraform show -json $GITHUB_WORKSPACE/terragrunt_plan.tfplan > $GITHUB_WORKSPACE/terragrunt_plan.json
+          terraform show -json $GITHUB_WORKSPACE/terragrunt_plan.tfplan | jq '.' > $GITHUB_WORKSPACE/terragrunt_plan.json
           echo "Listing contents of $GITHUB_WORKSPACE again"
           ls -al $GITHUB_WORKSPACE
 
@@ -171,7 +171,7 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           # directory: .
-          file: $GITHUB_WORKSPACE/terragrunt_plan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
+          file: terragrunt_plan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
           # check: CKV_AZURE_14 # optional: run only a specific check_id. can be comma separated list
           # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
           # quiet: true # optional: display only failed checks
