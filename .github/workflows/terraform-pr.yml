@@ -161,8 +161,7 @@ jobs:
           echo "Listing contents of $GITHUB_WORKSPACE"
           ls -al $GITHUB_WORKSPACE
           echo "Executing terraform show to output plan file to JSON format"
-          jq --version
-          terraform show -json $GITHUB_WORKSPACE/terragrunt_plan.tfplan | jq . > $GITHUB_WORKSPACE/terragrunt_plan.json
+          terraform show -json $GITHUB_WORKSPACE/terragrunt_plan.tfplan > $GITHUB_WORKSPACE/terragrunt_plan.json
           echo "Listing contents of $GITHUB_WORKSPACE again"
           ls -al $GITHUB_WORKSPACE
 
