@@ -168,9 +168,9 @@ jobs:
       # Verify Terraform plan file with Checkov
       - name: Checkov Verify Plan
         id: checkov_verify_plan
-        uses: bridgecrewio/checkov-action@v12.1347.0
+        uses: bridgecrewio/checkov-action@v12.1874.0
         with:
-          # directory: .
+          directory: $GITHUB_WORKSPACE
           file: terragrunt_plan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
           # check: CKV_AZURE_14 # optional: run only a specific check_id. can be comma separated list
           # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
