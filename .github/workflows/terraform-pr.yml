@@ -164,10 +164,6 @@ jobs:
           terraform show -json $GITHUB_WORKSPACE/terragrunt_plan.tfplan > $GITHUB_WORKSPACE/terragrunt_plan.json
           echo "##### Listing contents of $GITHUB_WORKSPACE again #####"
           ls -al $GITHUB_WORKSPACE
-          echo "##### Echoing contents of terragrunt_plan.json #####"
-          cat $GITHUB_WORKSPACE/terragrunt_plan.json
-          echo "##### Parsing terragrunt_plan.json with jq #####"
-          jq . < $GITHUB_WORKSPACE/terragrunt_plan.json
 
       # Verify Terraform plan file with Checkov
       - name: Checkov Verify Plan
