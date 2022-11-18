@@ -41,6 +41,6 @@
 # }
 
 inputs = {
-  asp_tier = "Shared"
-  asp_size = "D1"
+  asp_tier = "Free"
+  asp_size = "B1"
 }
