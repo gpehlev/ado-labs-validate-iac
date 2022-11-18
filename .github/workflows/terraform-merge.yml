@@ -33,6 +33,13 @@ jobs:
           terraform_version: latest
           # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }} # Disabled: The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file (optional)
 
+      # Install Terragrunt
+      - name: Install Terragrunt
+        run: |
+          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.39.2/terragrunt_linux_amd64"
+          sudo chmod +x /bin/terragrunt
+          terragrunt -v
+
       # Download plan file as build artifact
       - name: Download workflow artifact
         uses: dawidd6/action-download-artifact@v2
@@ -115,12 +122,22 @@ jobs:
       #   # if: github.ref != 'refs/heads/main' && (success() || failure()) # Disabled for the time being
       #   run: terraform validate -no-color
 
-      - name: Terraform Apply
-        id: tf_apply
+      # - name: Terraform Apply
+      #   id: tf_apply
+      #   # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      #   env:
+      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      #   run: terraform apply ${{ github.workspace }}/terraform.tfplan
+
+      - name: Terragrunt Apply
+        id: tg_apply
         # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        run: terraform apply ${{ github.workspace }}/terraform.tfplan
+        run: terragrunt run-all apply ${{ github.workspace }}/terragrunt_plan.tfplan

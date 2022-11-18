@@ -152,7 +152,7 @@ jobs:
         run: terragrunt run-all plan -no-color -out=$GITHUB_WORKSPACE/terragrunt_plan.tfplan
 
       # # Output plan file to JSON format for Checkov Verify Plan step
-      # - name: Output plan file to JSON
+      # - name: Output Plan File to JSON
       #   id: plan_to_json
       #   run: |
       #     echo "##### Echoing current directory and listing its contents #####"
@@ -235,7 +235,7 @@ jobs:
               body: output
             })
 
-      - name: Terraform Plan Status
+      - name: Abort on Terraform Plan Error
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
