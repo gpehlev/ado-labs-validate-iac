@@ -1,5 +1,3 @@
-# TODO: break workflow in 2 stages (jobs) - validate and plan
-
 name: 'Terraform-PR'
 
 on:
@@ -29,17 +27,30 @@ jobs:
         uses: actions/checkout@v3
 
       # Install the preferred version of Terraform CLI
-      - name: Setup Terraform
+      - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: latest
           # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }} # Disabled: The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file (optional)
 
+      # Install Terragrunt
+      - name: Install Terragrunt
+        run: |
+          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.39.2/terragrunt_linux_amd64" # Version to be installed should be a variable
+          sudo chmod +x /bin/terragrunt
+          terragrunt -v
+
       # Run terraform fmt
       - name: Terraform Format
-        id: fmt
+        id: tf_fmt
         # if: github.ref != 'refs/heads/main' # Disabled for the time being
         run: terraform fmt -check
+
+      # Run terragrunt hclfmt
+      - name: Terragrunt Format
+        id: tg_hclfmt
+        # if: github.ref != 'refs/heads/main'
+        run: terragrunt hclfmt
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
@@ -54,16 +65,83 @@ jobs:
           CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
         run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
 
-      # Run terraform validate
-      - name: Terraform Validate
+      # # Run terraform validate
+      # - name: Terraform Validate
+      #   id: validate
+      #   # if: github.ref != 'refs/heads/main' && (success() || failure()) # Disabled for the time being
+      #   run: terraform validate -no-color
+
+      # Run terragrunt validate
+      - name: Terragrunt Validate
         id: validate
-        # if: github.ref != 'refs/heads/main' && (success() || failure()) # Disabled for the time being
-        run: terraform validate -no-color
+        # if: github.ref != 'refs/heads/main' && (success() || failure())
+        run: terragrunt run-all validate
 
-      # Verify main + module files with Checkov
-      # Publish test results
+      # Verify Terraform module files with Checkov
+      - name: Checkov Verify Modules
+        id: checkov_verify_modules
+        uses: bridgecrewio/checkov-action@master
+        # continue-on-error: true
+        with:
+          directory: .
+          # file: example/tfplan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
+          check: CKV_AZURE_14 # optional: run only a specific check_id. can be comma separated list
+          # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
+          # quiet: true # optional: display only failed checks
+          # soft_fail: true # optional: do not return an error code if there are failed checks
+          framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+          output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+          output_file_path: $GITHUB_WORKSPACE # folder and name of results file
+          download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
+          # var_file: ./testdir/gocd.yaml # optional: variable files to load in addition to the default files. Currently only supported for source Terraform and Helm chart scans.
+          log_level: DEBUG # optional: set log level. Default WARNING
+          # config_file: path/this_file
+          # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
+          # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
 
-      - name: Terraform Plan
+      - name: Output Checkov Module Test Results
+        id: output_checkov_module_test
+        if: (success() || failure())
+        run: |
+          echo "$CHECKOV_RESULTS" > $GITHUB_WORKSPACE/Checkov_Module_Test_Results.xml
+
+      # Publish Checkov test results
+      # - name: Publish Checkov Test Results
+      #   id: checkov_test_results
+      #   uses: mikepenz/action-junit-report@v3.5.2
+      #   with:
+      #     report_paths: '**/Checkov_Test_Report.xml'
+
+      # - name: Test Reporter
+      #   uses: dorny/test-reporter@v1.6.0
+      #   with:
+      #     name: Checkov Tests
+      #     path: './Checkov_Test_Report.xml'
+      #     list-tests: 'all'
+      #     reporter: java-junit
+
+      - name: Publish Checkov Module Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2.2.0
+        if: (success() || failure())
+        with:
+          junit_files: "**/Checkov_Module_Test_Results.xml"
+          report_individual_runs: true
+          comment_mode: failures
+          compare_to_earlier_commit: false
+          job_summary: true
+          check_name: Checkov Module Test Results
+
+      # - name: Terraform Plan
+      #   id: plan
+      #   env:
+      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      #   # if: github.event_name == 'pull_request' # Disabled for the time being
+      #   run: terraform plan -no-color -out=$GITHUB_WORKSPACE/tf_plan.json
+
+      - name: Terragrunt Plan
         id: plan
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -71,12 +149,60 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         # if: github.event_name == 'pull_request' # Disabled for the time being
-        run: terraform plan -no-color -out=$GITHUB_WORKSPACE/terraform.tfplan
-        continue-on-error: true
+        run: terragrunt run-all plan -no-color -out=$GITHUB_WORKSPACE/terragrunt_plan.tfplan
 
-      # Verify plan with Checkov
-      # Publish test results for plan
+      # # Output plan file to JSON format for Checkov Verify Plan step
+      # - name: Output Plan File to JSON
+      #   id: plan_to_json
+      #   run: |
+      #     echo "##### Echoing current directory and listing its contents #####"
+      #     pwd
+      #     ls -al
+      #     echo "##### Listing contents of $GITHUB_WORKSPACE #####"
+      #     ls -al $GITHUB_WORKSPACE
+      #     echo "##### Executing terraform show to output plan file to JSON format #####"
+      #     terraform show -json $GITHUB_WORKSPACE/terragrunt_plan.tfplan > $GITHUB_WORKSPACE/terragrunt_plan.json
+      #     echo "##### Listing contents of $GITHUB_WORKSPACE again #####"
+      #     ls -al $GITHUB_WORKSPACE
 
+      # # Verify Terraform plan file with Checkov
+      # - name: Checkov Verify Plan
+      #   id: checkov_verify_plan
+      #   uses: bridgecrewio/checkov-action@master
+      #   with:
+      #     # directory: $GITHUB_WORKSPACE
+      #     file: terragrunt_plan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
+      #     # check: CKV_AZURE_14 # optional: run only a specific check_id. can be comma separated list
+      #     # skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
+      #     # quiet: true # optional: display only failed checks
+      #     # soft_fail: true # optional: do not return an error code if there are failed checks
+      #     # framework: terraform_plan # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+      #     output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+      #     output_file_path: $GITHUB_WORKSPACE # folder and name of results file
+      #     download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
+      #     # var_file: ./testdir/gocd.yaml # optional: variable files to load in addition to the default files. Currently only supported for source Terraform and Helm chart scans.
+      #     log_level: DEBUG # optional: set log level. Default WARNING
+      #     # config_file: path/this_file
+      #     # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
+      #     # container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
+
+      # - name: Output Checkov Plan Test Results
+      #   id: output_checkov_plan_test
+      #   run: |
+      #     echo "$CHECKOV_RESULTS"
+      #     echo "$CHECKOV_RESULTS" > $GITHUB_WORKSPACE/Checkov_Plan_Test_Results.xml
+
+      # - name: Publish Checkov Plan Test Results
+      #   uses: EnricoMi/publish-unit-test-result-action@v2.2.0
+      #   with:
+      #     junit_files: "**/Checkov_Plan_Test_Results.xml"
+      #     report_individual_runs: true
+      #     comment_mode: failures
+      #     compare_to_earlier_commit: false
+      #     job_summary: true
+      #     check_name: Checkov Plan Test Results
+
+      # Insert Terraform plan as pull request comments
       - uses: actions/github-script@v6
         # if: github.event_name == 'pull_request' # Disabled for the time being
         env:
@@ -86,7 +212,8 @@ jobs:
         # with:
         #   github-token: ${{ secrets.GITHUB_TOKEN }} # Should not be needed
           script: |
-            const output = `#### Terraform format and style: \`${{ steps.fmt.outcome }}\`
+            const output = `#### Terraform format and style: \`${{ steps.tf_fmt.outcome }}\`
+            #### Terragrunt format and style: \`${{ steps.tg_hclfmt.outcome }}\`
             #### Terraform initialization: \`${{ steps.init.outcome }}\`
             #### Terraform validation: \`${{ steps.validate.outcome }}\`
             #### Terraform plan: \`${{ steps.plan.outcome }}\`
@@ -108,7 +235,7 @@ jobs:
               body: output
             })
 
-      - name: Terraform Plan Status
+      - name: Abort on Terraform Plan Error
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
@@ -117,4 +244,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: terraform-plan
-          path: ${{ github.workspace }}/terraform.tfplan
+          path: ${{ github.workspace }}/terragrunt_plan.tfplan

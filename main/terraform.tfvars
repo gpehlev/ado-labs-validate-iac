@@ -1,6 +1,8 @@
+# Values now coming from terragrunt.hcl
+
 # Start with these values
-asp_tier = "Standard"
-asp_size = "S2"
+asp_tier = "Basic"
+asp_size = "D1"
 
 #Change to these values
 #asp_tier = "PremiumV2"
