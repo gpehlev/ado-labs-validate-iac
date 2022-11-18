@@ -42,5 +42,5 @@
 
 inputs = {
   asp_tier = "Free"
-  asp_size = "B1"
+  asp_size = "F1"
 }
