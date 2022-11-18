@@ -140,4 +140,4 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        run: terragrunt run-all apply ${{ github.workspace }}/terragrunt_plan.tfplan
+        run: terragrunt run-all apply ${{ github.workspace }}/terragrunt_plan.tfplan --terragrunt-non-interactive
