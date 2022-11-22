@@ -235,9 +235,9 @@ jobs:
               body: output
             })
 
-      - name: Abort on Terraform Plan Error
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
+      # - name: Abort on Terraform Plan Error
+      #   if: steps.plan.outcome == 'failure'
+      #   run: exit 1
 
       # Upload plan file as build artifact
 
