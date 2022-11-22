@@ -40,7 +40,12 @@
 #   path = find_in_parent_folders()
 # }
 
+# inputs = {
+#   asp_tier = "Free"
+#   asp_size = "F1"
+# }
+
 inputs = {
-  asp_tier = "Free"
-  asp_size = "F1"
+  asp_tier = "Basic"
+  asp_size = "D1"
 }
