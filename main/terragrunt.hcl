@@ -47,5 +47,5 @@
 
 inputs = {
   asp_tier = "Basic"
-  asp_size = "D1"
+  asp_size = "B1"
 }
